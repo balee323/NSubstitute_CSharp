@@ -20,13 +20,10 @@ namespace NSubsituteSimpleDemo
 
         public async Task<OrderReceipt> ProcessOrderAsync(OrderRequest request)
         {
-            //pass in a null
             Guard.Against.Null(request.CustomerName);
 
             try
-            {
-           
-                //blow up the JSON
+            {         
                 List<OrderDetail> orderDetails = Newtonsoft.Json.JsonConvert.DeserializeObject<List<OrderDetail>>(request.OrderJson) 
                     ?? new List<OrderDetail>();
 
@@ -48,9 +45,9 @@ namespace NSubsituteSimpleDemo
             catch (Exception ex)
             {
                Console.WriteLine(ex.Message);
-                //verify that request goes to _errorQueue.SendToQueue
+                
                await _errorQueue.SendToQueue(request);
-                //verify that order status has error
+               
                return new OrderReceipt { OrderStatus = "Error placing order." };
             }
 
@@ -70,8 +67,8 @@ namespace NSubsituteSimpleDemo
 
         private async Task<bool> CheckIfItemIsAvaliable(int itemNumber)
         {
-            //have repository send back 0 on a few items
-           return await _orderRepository.QuanityAvaliableOfItem(itemNumber) > 0;
+           var quantityAvaliable = await _orderRepository.QuanityAvaliableOfItem(itemNumber);
+           return quantityAvaliable > 0;
 
         }   
 
