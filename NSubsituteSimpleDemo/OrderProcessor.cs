@@ -18,14 +18,15 @@ namespace NSubsituteSimpleDemo
             _errorQueue = errorQueue;
         }
 
-
         public async Task<OrderReceipt> ProcessOrderAsync(OrderRequest request)
         {
+            //pass in a null
             Guard.Against.Null(request.CustomerName);
 
             try
             {
            
+                //blow up the JSON
                 List<OrderDetail> orderDetails = Newtonsoft.Json.JsonConvert.DeserializeObject<List<OrderDetail>>(request.OrderJson) 
                     ?? new List<OrderDetail>();
 
@@ -33,28 +34,29 @@ namespace NSubsituteSimpleDemo
 
                 Order order = new Order
                 {
-                    OrderId = Guid.NewGuid(),
                     CustomerName = request.CustomerName,
                     OrderDate = DateTime.UtcNow,
                     OrderDescription = request.OrderDescription,
-                    OrderJson = request.OrderJson
+                    OrderJson = request.OrderJson,
+                    OrderDetails = orderDetails
                 };
 
-
-                await _orderRepository.InsertOrderAsync(order);
-                _receiptWriter.GenerateReceipt(order);
+                var orderId = await _orderRepository.InsertOrderAsync(order);
+                var receipt = _receiptWriter.GenerateReceipt(order, orderId);
+                return receipt;
             }
             catch (Exception ex)
             {
                Console.WriteLine(ex.Message);
+                //verify that request goes to _errorQueue.SendToQueue
                await _errorQueue.SendToQueue(request);
+                //verify that order status has error
                return new OrderReceipt { OrderStatus = "Error placing order." };
             }
 
-            return new OrderReceipt{ OrderStatus = "Order being prepared for shipment." };
         }
 
-        private async Task CheckItemsInStock(List<OrderDetail> orderDetails)
+        private async Task<List<OrderDetail>> CheckItemsInStock(List<OrderDetail> orderDetails)
         {
             StringBuilder itemStatus = new StringBuilder();
 
@@ -62,15 +64,16 @@ namespace NSubsituteSimpleDemo
             {
                 orderDetail.InStock = await CheckIfItemIsAvaliable(orderDetail.ItemNumber);                
             }
-        }
 
+            return orderDetails;
+        }
 
         private async Task<bool> CheckIfItemIsAvaliable(int itemNumber)
         {
+            //have repository send back 0 on a few items
            return await _orderRepository.QuanityAvaliableOfItem(itemNumber) > 0;
 
-        }
-     
+        }   
 
     }
 }

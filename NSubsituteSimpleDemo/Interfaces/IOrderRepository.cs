@@ -4,7 +4,7 @@ namespace NSubsituteSimpleDemo.Interfaces
 {
     public interface IOrderRepository
     {
-        Task InsertOrderAsync(Order order);
+        Task<Guid> InsertOrderAsync(Order order);
 
         Task GetOrderDetailsAsync(Guid orderId);
 

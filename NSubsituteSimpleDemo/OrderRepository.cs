@@ -10,7 +10,7 @@ namespace NSubsituteSimpleDemo
             throw new NotImplementedException();
         }
 
-        public Task InsertOrderAsync(Order order)
+        public Task<Guid> InsertOrderAsync(Order order)
         {
             throw new NotImplementedException();
         }

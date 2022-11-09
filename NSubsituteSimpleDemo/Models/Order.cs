@@ -5,7 +5,7 @@
         public string OrderDescription { get; set; }
         public string CustomerName { get; set; }
         public DateTime OrderDate { get; set; }
-        public Guid OrderId { get; set; }
         public string OrderJson { get; set; }
+        public List<OrderDetail> OrderDetails { get; set; }
     }
 }

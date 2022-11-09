@@ -6,21 +6,33 @@ namespace NSubsituteSimpleDemo
 {
     public class ConsoleWriter : IReceiptWriter
     {
-        public void GenerateReceipt(Order order)
+        public OrderReceipt GenerateReceipt(Order order, Guid orderId)
         {
 
             var sb = new StringBuilder();
             sb.AppendLine("**********************************************************");
             sb.AppendLine($"Customer: {order.CustomerName}");
-            sb.AppendLine($"Order Id: {order.OrderId}");
+            sb.AppendLine($"Order Id: {orderId}");
             sb.AppendLine($"Order Date: {order.OrderDate}");
             sb.AppendLine($"Order Description: {order.OrderDescription}");
             sb.AppendLine($"Order: {order.OrderJson}");
-            sb.AppendLine("**********************************************************");      
+            sb.AppendLine("**********************************************************");
+
+            string receipt = sb.ToString();
 
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine(sb.ToString());
+            Console.WriteLine(receipt);
             Console.ResetColor();
+
+            return new OrderReceipt
+            {
+                CustomerName = order.CustomerName,
+                OrderDate = order.OrderDate,
+                OrderId = orderId,
+                OrderDescription = order.OrderDescription,
+                OrderStatus = "Preparing for shipment",
+                OrderDeliveryEstimate = DateTime.Now.AddDays(-7)
+            };
         }
     }
 }

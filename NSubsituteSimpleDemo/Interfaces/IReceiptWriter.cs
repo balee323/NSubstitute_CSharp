@@ -4,6 +4,6 @@ namespace NSubsituteSimpleDemo.Interfaces
 {
     public interface IReceiptWriter
     {
-        void GenerateReceipt(Order order);
+        OrderReceipt GenerateReceipt(Order order, Guid orderId);
     }
 }
